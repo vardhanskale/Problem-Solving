@@ -14,6 +14,13 @@ public class BSTNode {
 	public BSTNode(int data) {
 		this.data = data;
 	}
+	
+	// For creating a random BST
+	public BSTNode(Integer data, int lst_size) {
+		this.data = data;
+		this.lst_size = lst_size;
+	}
+
 
 
 }

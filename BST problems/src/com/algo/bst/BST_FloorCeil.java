@@ -1,28 +1,41 @@
 package com.algo.bst;
 
-/* Find the floor and ceil of a number in the given binary tree */ 
+import java.util.Random;
+
+/* 
+ * Problem  : Find the floor and ceil of a number in the given binary tree. 
+ * Ceil means immediate higher element. If X is available return X. 
+   So in the given tree Ceil(8) = 8.  
+   Ceil(12) = 15. As 15 is the next highest integer after 12.
+          20 
+	   10    40 
+     8  15	   60  
+          17  50
+
+    Given x = 12, lets explore how we are going to find 15. 
+    Lets start from root node. 
+    Since 20 > 15, either 20 can be the ceil or an item to the left of 20 could be the ceil. 
+    So I need to remember 20 in a variable, but the right subtree is completely meaningless to try. 
+    Now we come to node 10. 12 is greater than 10. So 10 and all subtree to the left are useless. 
+    Then we come to node 15. Sine 15 is greater than 12, either 15 could be ceil or something to its left could be the ceil. 
+     Since left side is empty, its over. The final answer is 15.
+ * 
+ * */ 
 
 public class BST_FloorCeil {
 
-	/* 
-	 * Finding Ceil of a value in BST.
-	 * If searchKey is equal to root.data, return. 
-	 * If searchKey is less than root.data , then 
-	 *    root.data could be the ceil. Store it & Move down to the left subtree.
-	 * If search key is greater than root data then root cannot be the ceil, so 
-	 * move to the right of the root node. 
-	 */
-	public static int ceil(TreeNode root, int x ) {
-	  int ceilValue = 0;
-	   while ( root != null) {
-		   if ( root.data == x ) {
+    // TC : Theta(logn)  SC: O(1)
+	public static int ceil(BSTNode root, int x ) {
+	  int ceilValue = Integer.MIN_VALUE ; // Minus infinity
+	   while ( root != null) {         // Step 3 : Ceil may not existing for some keys. Keep trying till the tree is empty.
+		   if ( root.data == x ) {     // Step 1
 			   return x; 
 		   }
-		   if (  root.data > x ) {
-			   ceilValue = x; 
+		   if (  x < root.data  ) {    // Setp 2 : Either root could be ceil or something on the left
+			   ceilValue = root.data; 
 			   root = root.left; 
 		   }else {
-			   root = root.right; 
+			   root = root.right;      // Left side including root is useless, so we go to the right.
 		   }	   
 	   }
 	   return ceilValue;
@@ -57,8 +70,16 @@ public class BST_FloorCeil {
 	}
 	
 	public static void main(String[] args) {
+		
 		int n = Integer.parseInt(args[0]); 
-		//TreeNode root = BinaryTreeUtils.createBalancedBinaryTree(n); 
+		BSTNode root = BSTUtils.buildRBST(n); // Build a random BST
+		BSTUtils.displayTree(root);
+		
+		// Test case for successful search
+		int x = new Random().nextInt(n) + 1; 
+		System.out.println(x);
+		System.out.println(ceil(root, x));
+		
 		//ceil( root, 25 );
 		//floor(root, 25 );
 	}
