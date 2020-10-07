@@ -1,0 +1,162 @@
+BST 
+======
+In Binary tree, every node has at most two child nodes. 
+Since binary tree follows a random insertion process, removal takes O(n) time. 
+BST imposes additional restriction that the right child of the node is greater than the node and left child is smaller than the node. 
+While searching any element in BST we prune half of the tree each time which makes it faster.
+This allows faster search, insert, delete operations faster. One common application of BST is symbol tables.
+Only pain point in BST is that in worst case scenario it can grow as a one sided BST. So to overcome this issue...
+BBST imposes another restriction that the difference in hight between left and right subtree should not be more than 1. 
+The whole idea of balancing is to make the performane of the tree as close as possible to log(N) 
+The terminology to balance a BT is called height balancing. 
+Height Balanced HB(0) implies that differnce of height between left and right subtree is 0. 
+BBST = BST + At every node take |height(LST) - height(RST)| <=1
+Its a very restrctive cndition to maintain perfect balancing. For a tree of 4 leaf nodes we will need to add 8 child nodes. 
+A little more relaxed condition is HB(1) tree. HB(1) implies that height between left and right subtree is 1.
+Thinking pattern to solve the BST problems is recursion and Divide and Prune.
+
+Problem  1 : Find an effecient algorithm to construct a balanced BST using keys from 1 to N. 
+Solution using recursive thinking : 
+
+When a batch of keys is given is there any fast way to create a BST. 
+I/P : N = 7 
+OP : To be a balanced BST Height should be same.
+Our data set is :  1 2 3 4 5 6 7
+Which key should we take so that we can divide the tree in approximately two equal parts ? 
+Lets start with a mid element of this list , which is 4. 
+        4
+	  /   \ 
+  1,2,3	  5,6,7 
+That means I'm thinking some kind of recursive stratergy. 
+My goal is to get all the seven keys as part of the balanced BST. 
+Since I dont know how to create a balanced BST, I'm reducing the problem to smaller problem by fixing middle element as root.
+By doing so I can gurantee that a tree is constructed. Lets solve this problem recursively for 1,2,3 
+        4
+	   / \
+      2   6 
+     / \  /\ 
+	1  3  5 7 
+
+Lets try with even number of inputs 
+Our data set is :  1 2 3 4 5 6 7
+          3                        3
+		 / \         >>>         /   \
+      1,2  4,5,6                1     5 
+	                             \    /\ 
+                                  2  4  6
+You can prove by induction that this kind of recursive stratergy is boung to give a balanced BST. 
+So when a batch is given, creating a BBST is a super simple process. But in the recursive thinking we 
+are dividing using the mid element and left and right we are recursively constructing.
+
+TC : In any recurive program time complexity is determined by identifying the time spent on all the nodes. 
+Total nodes = n. Time spent in each node =  The division work at each node is a constant work.  
+Total TC is O(n) 
+
+SC : Space complexity of any recursion is the depth of recursion.  
+ 
+
+
+   /* 
+   We are going to return a BSTNode. Its a node like BT problem. 
+   Since we are dividing the problem recursively, we need boundaries for left & right. 
+   Lets create an auxullary function to create boundaries. 
+   */
+
+public BSTNode buildBST( int n ) {
+    return auxBuildBST(1,n);  
+} 		
+
+private  BSTNode auxBuildBST(int l , int r )  {
+     
+	 /*
+	  * Base case, terminating condition is when l crosses r.
+      * Thats when no keys are there. So we need to return.
+      */	   
+     if ( l > r ) return null;  
+	 
+	 // When l = r we can stop because there is a single node.
+     if ( l == r ) return  new BSTNode(1);  
+	 
+	 // To divide the BST, we need to create a mid 
+     m = (l + r) / 2 ; 
+	 
+	 // Whatever mid element we selected, we need a node for it first.
+	 BSTNode root = new BSTNode(m); 
+	 
+	 /* 
+	  * Now we need to build the left subtree with keys l, to m-1. 
+	  * We also attach the result to the roots left subtree.
+	  */ 
+	 root.left = auxBuildBST(l, m-1); 
+	 
+	 // Similarly build a right subtree and attach it to right node. 
+	 root.right = auxBuildBST(m+l, r) ;
+
+  return root ; 	  
+} 		
+
+
+Problem 2 : Find an effecient algorithm to search for an element X in a given BBST. 
+            When we say balanced BST, we always mean height balanced 1 tree. 
+===================================================================================
+			
+Input :           50      X = 45. Expected output is true.
+                 / \
+               40   60
+			  /  \    \
+		 	10	 45	  90 
+			
+We need to find if the given element is equal to the root node or not. 
+If it is less than 50, search in the left subtree. If it is greater than 50, search in the right subtree. 
+So a BBST is a sorted array kind of problem. In an array the sortedness is given in linear form but in BST 
+the sortedness is given in a non linear form. We know that divide and prune is a natural choice 
+for a sorted array problem, similarly for a BST or BBST divide and conquer becomes a natural choice. 
+All you need to decide is whether you need to choose the left part or the right part. 
+  
+Solution : Divide and Prune Pattern. 
+Dividing : LST, RST 
+Pruning : At any node 
+          if ( x < data ) then prune right subtree. 
+		  if ( x > data ) then prune left subtree. 
+		  if ( x == data ) then return true. 
+		  
+Problem 3 : Find an effecient algorithm that returns ceil of an element in BBST 
+===============================================================================
+Ceil means immediate higher element. If X is available return X. 
+So in the given tree Ceil(8) = 8.  
+Ceil(12) = 15. As 15 is the next highest interger after 12.
+          20 
+	   10    40 
+     8  15	   60  
+          17  50
+
+Given x = 12, lets explore how we are going to find 15. 
+Lets start from root node. 
+Since 20 > 15, either 20 can be the ceil or an item to the left of 20 could be the ceil. 
+So I need to remember 20 in a variable, but the right subtree is completely meaningless to try. 
+Now we come to node 10. 12 is greater than 10. So 10 and all subtree to the left are useless. 
+Then we come to node 15. Sine 15 is greater than 12, either 15 could be ceil or something to its left could be the ceil. 
+Since left side is empty, its over. The final answer is 15. 
+
+
+Lets take another example in the same tree. Let x = 33
+Lets start from the root. Since 33 > 20 , move to the right side.  
+Since 40 is greater than x=33, either 40 can be a ceil or something  to the left of 40 could be ceil. 
+So lets store 40 in a variable and move to its left. 
+Since there is nothing to the left of 40, return 40. Our answer is 40. 
+ 
+So we are again using divide and prune logic. 
+Divide   : LST, RST 
+Pruning  :    if ( x < root.data ) 
+                  result = root.data; 
+				  prune right subtree. 
+			  if ( x > root.data )  
+  			      prune left subtree. 
+				  
+ TC : O( log n ) 
+ SC : We just need to move the pointer. We dont need recursion also. So we need a constant space O(1)
+ 
+
+Problem 4 : Find the Kth smallest element in a binary tree
+==========================================================
+			
