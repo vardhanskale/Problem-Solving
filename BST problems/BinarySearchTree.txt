@@ -157,6 +157,128 @@ Pruning  :    if ( x < root.data )
  SC : We just need to move the pointer. We dont need recursion also. So we need a constant space O(1)
  
 
-Problem 4 : Find the Kth smallest element in a binary tree
-==========================================================
+Lets see how you can translate it into code 
+--------------------------------------------
+
+Problem 4 : Find an effecient algorithm that returns the Kth smallest element in a BBST
+========================================================================================
+
+Draw a tree. 
+             50 
+	   40         60 
+	30    45 	55  80 
+            48
 			
+Input K = 3  O/P : 45 
+Input K = 6  O/P : 55 
+
+If you do inorder traversal you will get the following : 
+30,40,48,50,55,60,80. 
+
+Recall that to know the result of inorder traversal, draw a straight line from each node 
+till bottom and read results from left to the right. 
+ 
+
+Solution 1 : Adhoc stratergy : Do inorder traversal. 
+-----------------------------------------------------
+TC : 
+Since you are using recursion, how much time are you spending on each node ? 
+The sum of that time is time complexity. At each node we increment a counter and when the 
+counter matches K, we stop. So there is a constant effort.
+
+SC : 
+Doing inorder traversal means doing recursive thinking.
+Since we are doing recursion, the depth of the trecursion stack is equal to the depth of the tree.
+Since we are giving a balanced BST, O(logn ) is guranteed.  
+
+Our goal is to make an inorder call and increment a count when you access the node. 
+But how do you increment a count in the recursive function ? 
+We know that in recursive calls the same function is repeatedly called.
+So we need a shared counter across all the calls. 
+We know that we never use static and global variables in recurive calls. 
+They will fail when you invoke the methods within multiple threads. 
+Here we need to maintain a local counter in the heap section and share that 
+variable across all the recursive calls. How do you create a counter in heap ? 
+Every object in java is created in heap. Since Integer in Java is immutable , 
+lets create a wrapper class for our integer counter. 
+
+MyInteger count = new MyInteger(0); 
+
+ 
+Solution 2 : Divide and Conquer 
+-----------------------------------
+Draw a tree. 
+             50 
+	   40         60 
+	30    45 	55  80 
+            48
+Input K = 3  O/P : 45 
+
+Start from root node. Our aim is to find the third smallest. 
+At the root node if you can find some way which can tell us that the right side definately does not have the third smallest element. 
+At this moment at the root node only data is available. There is no extra information available to make a judgement that right side is useless.
+To do pruning at root node some information has to be attached at the root level. 
+What is that information that we should attach to get pruning at each level. 
+But looking at the tree we derive that the third smallest is at the left side because there are 4 elements at the left in sorted order.
+If we store this information ( size of left subtree ) with each node, we can take a decision. 
+Or we can maintain the rank of each node. Storing rank means position in order.
+For example 50 has a rank 5. So we know that we have to go to its left. 
+This information has to be added at node creation time.  
+So now at each node we can 1) Size of LST 2) Maintain node rank. 
+But how do you know which information makes more sense ? 
+But the problem with the ranking approach is that once you add or insert a new node you have to change the rank of all the other node which 
+will increase time comlexity from TC : O(log(n)) to O(n). This is not acceptable as we want both methods to be log(n) complexity. 
+
+Draw a tree with size of left sub tree in brackets. 
+          ( 4) 50 
+	 (1) 40       (1) 60 
+  (1)30    45 	 (0)55  80 
+           (0)48
+		      
+Now in this approach whenever you insert a new node in the tree, say at the bottom left, 
+as you traverse from root to leftmost leaf node you keep incrementing the count of LST at each node.  
+No other nodes gets affected except the nodes which are in the path of insertion. 
+This way in the same log(n) complexity element can be added up. 
+But how does the LST approach help us in getting Kth smallest element? 
+
+The (4) besides 50 in the tree above says that there are 4 elements to the left of 50.	
+Which also means that 50 is the 5th smallest element in the tree and 40 is the second.
+Now that you know that 40 is the second smallest element, the 3rd smallest element will be to its right.   
+
+Since you have to go to the right side, the left sides count has to be included as part of the order.
+How much remaining more should you add to get overall third smallest.
+When I go to the left no one is included. When I go to the right.
+
+Let's assume you are at node 40, which has LSTvalue = 1. Its current position in tree is (LSTvalue+1). 
+To get the 3rd smallest node, we do the following : 
+3 - [ Position of 40 which is (LSTvalue+1) ]
+3 - [ 1+1 ] = 1. 
+
+This value 1 implies that we need the first element to the right of 40, which is also the 3rd smallest in the tree. 
+When this value 1 matches the postion of 45. [ LSTValue of 0 + 1 ] we know that we have found the 3rd smallest element.  
+
+Now let's search for 6th smallest element.
+1. Read the LSTValue of root. Its 4. So its position is [ LSTValue + 1 = 5 ] 
+2. Since we are looking for 6th smallest element which is > 5, we should look at RHS of 5. 
+   But how many more elements should we look for ? [6th position - 5 ( position of current element) ] = 1.
+   Now we need to find out which one element to choose from the subtree to the right of root node 50. 
+   We follow the same approach. 
+   a. Go to node 60. Its LSTValue = 1. So its position is 2, which does not match with our requirement of 1. 
+   b. Should we go to the left of 60 or to its right ? 
+   b. Go to node 55. Its LSTValue = 0. So its position is 1, which matches with 1. So 55 is the 6th smallest element.  
+3. That means that even by maintaining the size of lst, it is possible to maintain pruning. 
+4. So if my current rank K < LSTValue + 1 you prune the right part.
+5. If  K > LSTValue + 1 prune the left part. 
+
+TC : O( Log N ) : Since pruining is happening at each level. 
+SC : O(1)
+
+
+Key takeway : When the node does not provide whether we need to prune the left part of the right, you can aument a value in the node 
+              whih can help us with a pruning strategy. What information will your augment will depend on the merit of the problem. 
+			  In the existing node we cannot accomodate this information so we need to change the node structure.
+			  The rank based solution was good if the add operation would not have increased the TC to O(n) 
+			  But because you are adding an extra variable at each node the SC become O(n) 
+			  So thats how in practice we compromise on space to get better timing.
+			  We need a solution which has time complexity of O(log n) 
+			  
