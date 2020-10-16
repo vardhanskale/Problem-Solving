@@ -6,18 +6,13 @@ import java.util.ArrayList;
 /*
  * Discussion of heap : How is it different from balanced BST 
  * -----------------------------------------------------------
- * BST = Binary tree + At every node x there is a condition 
- *           x 
- *		   /   \
- *		LST    RST 
- *		 < x   > x 
- *
- * In priority Queue we add an element and take out a high priority element. 
  * Heap = complete binary tree + At every node x, the element x is smaller than the children. 
  *           x        x < y
  *		    / \        and 
  *         y   z      x < z
- * In heap only childern matter. We are not interested in LST or RST. 
+ * In heap only children matter. We are not interested in LST or RST. 
+ * A complete binary tree can be stored as an array. Give contiguous index level by level. 
+ * [2,5,8,10,9,40,16,20,15] 
  * 
  */
 public class HeapPQueue implements IPQueue {
