@@ -1,0 +1,193 @@
+PriorityQueue - A group of elements with associated priorities. 
+---------------------------------------------------------------
+Normal Queue = People enter and leave the queue in the same order. 
+PriorityQueue gives importance to each element. When you want to take an element out you do so based on the importance of the element. 
+Its like the VIP, Special Darshans in Tirumala in which priority is associated with each element. 
+In IPL bidding, each bid for a player is a priority. Whoever bids highest gets the player.
+So Priority queue is a bunch of players and their amount is the priority.
+Another example is online auction for charity. 
+In operating system each program wants to use CPU to execute its instructions.
+When OS schedules the program, how do they do it ? 
+The OS associates a priority to each process. When CPU gets free OS picks up an item based on the priority associated with the item. 
+This kind of work is called as priority based scheduling. The data structure they hold to store the process is priorityQueue. 
+For online ads also google invites bidders for the position of the advertisement. 
+
+  
+Agenda 
+------
+1. Understand the storage mapping for priority Queue.
+2. How do you implement priority queue. 
+3. How do you use priorityQueue in problem solving ?
+
+
+Storage mapping for priorityQueue 
+---------------------------------
+
+Linear 
+  1. Unorderd Sequential 
+      add - Add a new item at the end O(1)
+      min() - element with smallest value. To find it you need a full scan. So O(n) 
+      RemoveMin() - To find the minimum element we need size O(n)	
+      size() - O(1). Since size is always available. 
+ 	  display(0 - You must go through all elements to show O(n) 
+  2. Reverse Orderd Sequential 
+      add - You need to shift all items to the right to place smallest element at location 1. O(n) 
+      findMin - Smallest element is the first one. 
+  3. Order Linked List - 
+      add()  - First find the position in order and then link it in constant effort. 
+               To find the position we need extra time. O(n) is the worst case performance.  
+	  findMin() - Find the minimum takes constant time. Just take the first element. 
+	  removeMin - Constant 
+	  display  - O(1) 
+	  display  - O(n) 
+	  
+      			
+  4. Linear Linked Storage. 
+  5. Tree PQ - 
+     addition - Since this is a balanced BST we can gurantee this in Log(n) 
+	 findMin() - O(logn ) - since you keep pruning the tree by half till you reach  the buttom left element.
+	 removeMin() - log(n) 
+	 size  - O(1) 
+	 display - O(n) 
+	 
+	 As you can see that a BBST can bring down the add operation to logn, so its a good solution for large N.  
+	 
+  6. Hash based priority Queue  -  
+     Add         - O(1) amortized
+	 findMin()   - O(n) Since Hash cannot maintain order we have to go through all the elements.   
+	 removeMin() - O(n) 
+	 display     - O(n) 
+	 This is very poor choice when you want order amoung the data. But tree is doing very good when you want order amoung the data.
+	
+  7. Tree (Heap) PQ - Heap based implimentation of priority Queue. 
+     Another advantage of heap is that it can be stored in an array. 
+     Add       - O(Logn) 
+	 findMin   - O(1)       <- This better performane is the reason why heap based tree is used for priority queue.
+     removeMin - O(Logn) 
+	 Size      - O(1) 
+	 display   - O(n) 
+     	 
+	  
+	 
+Non Linear
+  1. Tree 
+  2. Hash.                            Reverse
+                                      Orderd       Ordered
+Min PriorityQueue       Sequential    Sequential   Linked      Tree(BBST)   
+     API                   PQ          PQ          PQ          PQ 
+-------------------------------------------------------------------
+add(x)                   O(1)         O(n)         O(n)    O(logn) 
+findMin()                O(n)         O(1)         O(1)    O(logn) 
+removeMin()              O(n)         O(1)         O(1)    O(logn) 
+size()                   O(n)         O(1)         O(1)    O(1) 
+display()/               O(1)         O(n)         O(n)    O(n) 
+Iterator()               O(n) 
+
+Discussion of heap : How is it different from balanced BST 
+-----------------------------------------------------------
+BST = Binary tree + At every node x there is a condition 
+             x 
+		   /   \
+		LST    RST 
+		 < x   > x 
+
+In priority Queue we add an element and take out a high priority element. 
+Heap = complete binary tree + At every node x, the element x is smaller than the children. 
+             x        x < y
+		    / \        and 
+           y   z      x < z
+In heap only childern matter. We are not interested in LST or RST. 
+
+Difference between binary tree and complete binary tree 
+--------------------------------------------------------
+
+Binary tree can be maximum two children. 
+Perfect binary tree - At each level each node has exactly two children. 
+Complete Binary tree - A three level complete binary tree should be such that till two levels it should be complete full. 
+And then in the last level it should be filled from left to right. This condition should be satisfied. 
+       
+          O               (0) 2 
+		/  \                 /  \
+	   O    O    =>     (1) 5    8 (2)       => This is perfectly valid complete binary tree.
+	  / \                  / \  / \          It is not necessary that left side should be bigger or smaller than root. 
+	 O   O           (3)  10  9 40 16 (6)    If the value of the root node is smaller than its children , if anyone asks you 
+    	                 / \                 the smallest priority guy you can always give the top most item. 
+					(7)	20  15 (8) 
+A complete binary tree can be stored as an array. Give contiguous index level by level. 
+[2,5,8,10,9,40,16,20,15] 
+
+But we always get a doubt that if it store it in an array, how can it be a tree structure ? 
+A tree need not be a visual thing, we need the movement. 
+If you are at 0 and you want to go to left you should go to 5. 
+If you are at 0 and you want to go to the right you should go to 8. 
+if the root index is i=1, then the left child will be 2i + 1 and the right child will be 2i + 2.
+If you want to go from child to parent you simply do ( i - 1 ) / 2. [ (6 - 1)/2 )] 
+So we can avoid two pointers per node. So the array in complete binary tree is giving us level order. 
+
+
+Lets now understand how can we addd an element to min heap and how can we take an element from min heap.
+How to remeove the highest priority element from minheap. 
+Assume these are the elements of the tree which we want to add one by one to the heap. 
+[2,10,5,15,8,7,6, 1]
+ 
+ First element is root level. When next elements come up we satisfy complete binary tree property. 
+               
+			   2 
+			  / \
+			 10  5   
+            / \
+		   15  8
+After 8 comes out we see the structure is complete binary tree but the orderwise 10 is higher than 8 
+which is violating the minheap property. Swap the position of 8 and 10. There is no order violation between 8 and 2. 
+So there is no problem. 
+
+                 2
+			   /  \	
+              8    5 
+			 / \   /\
+            15 10 7  6   
+
+Now lets add 1.  When you add 1. 
+
+                 2                     2                2                 1
+			   /  \	                 /  \             /  \              /   \
+              8    5      =>        8    5    =>     1     5  =>       2     5
+			 / \   /\              / \  / \         / \   / \         / \   / \
+            15 10 7  6            1  10 7  6       8  10  7  6       8  10  7  6
+ 		   /                     /                /                 /
+          1                     15               15                 15
+ You see structure is Ok but order is violated. 1 cannot come at the end. 
+ We replace 1 with its parent till the adjustment reaches till the root. 
+ For understanding, we draw the binary tree, but while coding we do it at array level. 
+ TC : O(log n) - Maximum swaps will be O( Log n ) 
+ SC : O(1) 
+ 
+ findMin() requires us to return the element at the top of the tree or at the zeroth index. 
+ 
+ removeMin()    
+                  1
+			  5	       2
+ 		    8   10   7   6 
+	      15	
+
+ Now suppose that we take the Min(5,2) = 2 and replace 1 with it. 
+ Then we take the Min(7,6) = 6 and take the smallest element above. 
+ 
+                  2
+			  5       6  
+	       8    10   7
+		 15 
+		 
+ This violates the structure property of minheap. All the elements at level three should be filled. 
+ So we dont use that stratergy of finding min of two children. Instead to maintain the structure first 
+ we take the last element and bring it to the top. So our tree looks like this. 
+ 
+                15                                               5                                                  5 
+			5         6     =>  Replace 15 with Min(5,6)     15      6   => Replace 15 with min(8,10)  =>       8       6 
+		8      10   7                                     8     10  7                                       15    10   7                             
+ After doing one removeMin() operation this is the minHeap you get.		
+ Now we need to balance the order such that the root node is smallest.	
+ To maintain the order take element 15 and move it down till 15 comes to the leaf level. 
+ 
+
+ 
