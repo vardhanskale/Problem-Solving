@@ -1,0 +1,224 @@
+Table of content 
+1. Introducted of sorted data structure 
+2. How balancing happens in BST. 
+3. Solving K Empty slots. 
+
+Introduction to sorted data structure 
+-------------------------------------
+In sorted set we maintain order among the data. This order will be ascending or descending. 
+If you dont want duplicates you use Set. If you need duplicates you use sorted multiset. 
+In DB you are given a salary colum and you want to find who has minimim salary. 
+Who has got next highest salary ? Who got immediate previous salary ?
+How many people are having salary in range A to B ? 
+These are all order based comparisions. 
+Whenever there is a need for operations such as min(), max(), range() we use sorted set. 
+If we arrange data for such queries in sorted set order, we get optimum result.  
+
+Usefulness : 
+1. Statistical operations : Min , Max , Quartiles. 
+2. In an OS when a process is executing, OS will allocate meemory for the programs to run. It keeps memory in non conteguious locations.
+
+
+SortedSet : Group of distinct elements with order amoung data. 
+Lets come up with storage mapping for Sorted set to see how SortedSets can be implemented 
+and then we will check time complexity. 
+Storage Mappings : 
+     Linear     - 1) Sequential 2) Linear Linked 
+	 Non Linear - 1) Tree 2) Hash 
+
+Ordered Sequential Sorted Set
+Ordered Linked Sorted Set 
+Hash based Sorted Set - Since elements are not stored in sorted manner, its very ineffecient to use it.
+Tree Sorted Set - Tree is BBST. This is the best storage mechanism for sorted set. 
+
+Operations in SortedSet
+-----------------------
+add(x) 
+contains(x) 
+remove(x)
+size (x) 
+iterator()
+display()
+min() 
+max() 
+ceil(x) 
+floor(x)
+select(k) 
+[ Kth smallest ] 
+rangeSearch(key1,key2) 
+
+
+Implementing Treeset 
+---------------------
+See code here : 
+
+
+How do you balance a BST ? 
+----------------------------
+Input : [ 10,15,18, 6,9,20,25,30] 
+
+When Abs ( Height(LST) - Height (RST))  <=  1 , we have a Height Balanced BST of height 1. 
+HB(0) is very strict balancing due to which incremental balancing is not possible. 
+
+   10 
+     \
+      15 
+	   \
+	    18 
+Now the height difference between left and right side is greater then 1. 
+So, pull or rotate 10 down. Single Rotate Left ( SRL ). This will give you ...
+        15                                                15 
+       /  \      -> Add 6  & check for imbalance->        / \
+     10    18 		                                     10  18
+                                                        /
+                                                       6
+How do you check for imbalance ? 															
+Check if 6 is imbalanced. Then 
+Check if 10 is imbalanced. Then, 
+Check if 15 is imbalanced. 
+If you are writing a recursive routine you can check for balancing as you return back. 
+Now add 9. 
+           15 
+		   / \
+         10   18
+         /         
+        6
+		 \
+		  9
+Now as you go up from 9, you find that imbalance happens at node 10. Make a star(*) mark there.	
+Now I cannot rotate 10 to the right, because if you do that, 9 will come to the left of 6 as shown below. 
+            15 
+            / \			
+           6  18 	   This is not a BST as elements to the left of 6 should be smaller than 6. 
+		  / \ 
+		 9  10
+But if we do double rotation [ Left rotate + right rotate ] at node 10, we get the balancing. Lets do it. 
+
+           15                            15                                   15 
+          /  \   	                    /  \                                 /  \
+         10   18   -> Left Rotate 9    10    18    -> Right Rotate 10 ->    9   18   -> Now its balanced. 
+	    /              & 6            /                & 9                 / \     
+	   6                             9                                    6   10  
+	    \                           / 
+		 9                         6
+		 
+Now go to root node 15. There is no imbalance at 15. 
+Now add 20, 25. This causes imbalance at node 18. 
+
+     15                                              15
+    / \                                            /   \
+   9  18(*)                                       10   20  
+  / \   \   	  -> Rotate 18 left gives        / \   / \
+ 6  10   20          Pull 18 down, add 30.      6   9 18  25
+          \                                                \
+		  25                                               30
+		  
+So you rote two elements at a time repeatedly.		  
+		  
+----------------------------------------------------------------------------------------------------
+K Empty Slots - How to use sorted sets.
+
+There is a garden with N Slots. In each slot there is a flower. The N flowers will bloom one by one
+in N days. In each day there will be exactly one flower blooming and it will be the status of blooming 
+since then. 
+
+Given an array flowers consists of numbers from 1 to N. Each number in the array represents the place where 
+the flower will open in that day. For example, flower[i] = x means that the unique flower that blooms at day i 
+will be at position x, where i and x will be in the range of 1 to N. 
+
+Also given an integer k, you need to output in which day there exists two flowers in the status of blooming
+and also the number of flowers between them is k and these flowers are not blooming. 
+
+
+Discussion about the problem : 
+
+If the distance between two blooming flowers , if the gap is K ,what is the earliest day on which the gap K 
+is going to come up between any two blooming flowers. That earliest day should be returned out. 
+
+Let indexes of the array represent the days and the value at the index represent the position of flower that is blooming.
+
+Input : 
+
+[2,8,3,5,1,4,7,6]
+ 0 1 2 3 4 5 6 7 
+ 
+k = 2 , implies k empty slots are expected b/w two blooming flowers. 
+ 
+Let Y represent a blooming flower. 
+On day 1 st flower blooms and on second 8th flower blooms. 
+ 
+  Y             Y
+- - - - - - - - -
+1 2 3 4 5 6 7 8 9
+ 
+With every blooming flower check two slots before and two slots after to see if there are any blooming flowers. 
+In this case there are none, so we ignore 2 and 8.
+On day three we again have a blooming flower at index 2, but there are no two empty slots on either side of it. 
+So we ignore 2.  
+
+  Y Y           Y
+- - - - - - - - -
+1 2 3 4 5 6 7 8 9
+
+Next day 5th flower blooms. Now we see below that two slots to the right has a blooming flower. Stop the algorithm. 
+Since number 5 is placed at index 3, which represents day 3. We return back index 3 for third day. 
+
+  Y Y   Y     Y  
+- - - - - - - - 
+1 2 3 4 5 6 7 8 
+
+So you can take a boolean array and mark its field as true whenever a flower has bloomed for it.
+For each flower that has bloomed, you check two flowers forward and two flowers backward and check if the 
+condition has satisfied. If it is satisfies return the index of the bloomed flower. If it is not return -1.   
+
+For each day you continue this process. 
+So space complexity will be O(n). 
+TC : What is the worst case possibility here ?
+Say k = n/2 and first flower blooms on day 1 and last flower blooms on day n. 
+Then I need to check till day n/2. For every bloomed flower we need to check almost all the slots. 
+So TC : O(n2) 
+
+We need to find a smarter way to solve this problem which takes less than n2 time. 
+If we can find the next immediate blooming flowers position and know that the gap is K we are done. 
+We dont have to linearly check all the k empty slots.
+What additional data struccture can I take to get the next immediate blooming flower. 
+
+ 
+ [2,8,3,5,1,4,7,6]
+  0 1 2 3 4 5 6 7 
+ 
+ Pick 2 from the array. We need to find the blooming flower before and after 2. 
+ There is nothing. So I add 2 into into the data structure.
+ So add() is needed. 
+ 
+ Pick 8 from the array. Who comes before 8 and who comes after 8 ? 
+ Before 8 means you are aking for floor();  
+ After  8 means you are asking for ceil(); 
+ 
+ Now the data structure contians [ 2, 8 ]
+ Now pick the next element 3 from array. 
+ Who comes before 3 and who comes after 3 ? 
+ floor(3) is 2.  3-2 = Zero slots.
+ ceil(3) is 8.   8-3 = Five slots which does not match our requirement of K = 2. 
+ Now our data structure contains [2, 3, 8] 
+ 
+ On 4th day 5 comes in. 
+ floor(5) is 3.  5-3  = 2. We got the condition satisfied. 
+ ceil(5)  is 8.  We already got the condition satisfied. 
+
+ Return day 4 which is our answer. 
+ The main crux is that we need some kind of data structure which maintains order. 
+ If we dont maintain order, we cannot get cil() and floor() operations faster. 
+ Thats where by using TreeSet data structure we can get floor() , ceil() in log(n) time. 
+ And addition is also Log(n) time. 
+ 
+ At each node you are asking to do 1) add() 2) ceil() 3) floor() . That means TC : 
+ Number of nodes = n . 
+ Operations at each node = 3logn
+ Total operations = n x 3 Log n.  = 3logn
+ 
+ 
+ Translating the idea into code 
+ -----------------------------
+ 
+ 
